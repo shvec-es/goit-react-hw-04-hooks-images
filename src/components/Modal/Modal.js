@@ -1,28 +1,41 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import s from './Modal.module.css';
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleModal);
-  }
+function Modal({ bigImg, onClose }) {
+  useEffect(() => {
+    const handleModal = e => {
+      if (e.code === 'Escape') {
+        onClose();
+      }
+    };
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleModal);
-  }
+    window.addEventListener('keydown', handleModal);
 
-  handleModal = e => {
-    if (e.code === 'Escape' || e.currentTarget === e.target) {
-      this.props.onClose();
+    return () => {
+      window.removeEventListener('keydown', handleModal);
+    };
+  }, [onClose]);
+
+  const handleBackdropClick = e => {
+    if (e.currentTarget === e.target) {
+      onClose();
     }
   };
 
-  render() {
-    return (
-      <div className={s.Overlay} onClick={this.handleModal}>
-        <div className={s.Modal}>{this.props.children}</div>
+  return (
+    <div className={s.Overlay} onClick={handleBackdropClick}>
+      <div className={s.Modal}>
+        <button className={s.Button} type="button" onClick={onClose}></button>
+        <img src={bigImg} alt="" width="560" />
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+Modal.propTypes = {
+  bigImg: PropTypes.string,
+  onClose: PropTypes.func,
+};
 
 export default Modal;
